@@ -95,8 +95,6 @@ resource "aws_api_gateway_method" "kinesis_api_resource_check_post" {
 }
 
 // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_integration
-// https://stackoverflow.com/questions/70213550/aws-api-gateway-integration-uri-for-kinesis
-// API와 Lambda 통합
 resource "aws_api_gateway_integration" "kinesis_api_resource_check_post" {
   rest_api_id = "${aws_api_gateway_rest_api.kinesis_api.id}"
   resource_id = "${aws_api_gateway_resource.kinesis_api_resource_check.id}"
@@ -105,7 +103,7 @@ resource "aws_api_gateway_integration" "kinesis_api_resource_check_post" {
   integration_http_method = "POST"
   # arn:aws:apigateway:{region}:{subdomain.service|service}:{path|action}/{service_api}
   uri = "arn:aws:apigateway:ap-northeast-2:kinesis:action/PutRecord"
-    # Transforms the incoming XML request to JSON
+  # Transforms the incoming XML request to JSON
   passthrough_behavior    = "WHEN_NO_TEMPLATES"
   credentials             = "arn:aws:iam::833496479373:role/apigatewayToKinesis"  
 
