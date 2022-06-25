@@ -12,8 +12,8 @@ terraform {
 # Seoul - ap-northeast-2
 provider "aws" {
   region = "ap-northeast-2"
-  access_key = "[access key]"
-  secret_key = "[secret key]"
+  access_key = "[access_key]"
+  secret_key = "[secret_key]"
 }
 
 # VPC 생성
@@ -106,10 +106,24 @@ resource "aws_api_gateway_integration" "kinesis_api_resource_check_post" {
   # arn:aws:apigateway:{region}:{subdomain.service|service}:{path|action}/{service_api}
   uri = "arn:aws:apigateway:ap-northeast-2:kinesis:action/PutRecord"
     # Transforms the incoming XML request to JSON
-  
+  passthrough_behavior    = "WHEN_NO_TEMPLATES"
+  credentials             = "arn:aws:iam::833496479373:role/apigatewayToKinesis"  
+
+  request_parameters = {
+    "integration.request.header.Content-Type" = "'application/x-amz-json-1.1'"
+  }
+ 
   # Request template
   request_templates = {
-    # "application/json" = "#set($enter = \n), #set($json = $input.json('$')$enter){}" 
-    "application/json" = "#set($enter = \n), #set($json = $input.json('$')$enter){Data: $util.base64Encode('$json')},PartitionKey: $input.params('X-Amzn-Trace-Id'),StreamName: 'project-stream'" 
+    "application/json" = <<EOF
+#set($enter = "
+") 
+#set($json = "$input.json('$')$enter")
+{
+    "Data": "$util.base64Encode("$json")",
+    "PartitionKey": "$input.params('X-Amzn-Trace-Id')",
+    "StreamName": "project-stream"
+}
+EOF 
   }
 }
