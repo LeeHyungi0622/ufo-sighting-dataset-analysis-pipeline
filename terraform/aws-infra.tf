@@ -125,3 +125,58 @@ resource "aws_api_gateway_integration" "kinesis_api_resource_check_post" {
 EOF 
   }
 }
+
+# Kinesis data stream 생성 (project-stream)
+# https://registry.terraform.io/providers/hashicorp/aws/2.34.0/docs/resources/kinesis_stream
+resource "aws_kinesis_stream" "mod" {
+  name             = "${var.stream_name}"
+  shard_count      = "${var.shard_count}"
+  retention_period = "${var.retention_period}"
+
+  shard_level_metrics = [
+    "IncomingBytes",
+    "OutgoingBytes",
+    "OutgoingRecords",
+    "ReadProvisionedThroughputExceeded",
+    "WriteProvisionedThroughputExceeded",
+    "IncomingRecords",
+    "IteratorAgeMilliseconds",
+  ]
+}
+
+# AWS S3 bucket
+resource "aws_s3_bucket" "mod" {
+  bucket = "hg-${var.stream_name}-event-backup"
+}
+
+# Kinesis firehose
+resource "aws_kinesis_firehose_delivery_stream" "mod" {
+  name  = "${var.stream_name}-backup"
+
+  destination = "s3"
+
+  s3_configuration {
+    role_arn   = "${aws_iam_role.firehose_role.arn}"
+    bucket_arn = "${aws_s3_bucket.mod.arn}"
+  }
+}
+
+resource "aws_iam_role" "firehose_role" {
+  name  = "${var.stream_name}-firehose-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "firehose.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
