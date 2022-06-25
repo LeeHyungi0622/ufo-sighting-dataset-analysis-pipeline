@@ -126,6 +126,16 @@ EOF
   }
 }
 
+# Api Gateway 배포
+// API 배포 (production)
+resource "aws_api_gateway_deployment" "kinesis_api_prod" {
+  depends_on = ["aws_api_gateway_integration.kinesis_api_resource_check_post"]
+  rest_api_id = "${aws_api_gateway_rest_api.kinesis_api.id}"
+  stage_name  = "prod"
+  stage_description = "${timestamp()}"
+  description = "Deployed at ${timestamp()}"
+}
+
 # Kinesis data stream 생성 (project-stream)
 # https://registry.terraform.io/providers/hashicorp/aws/2.34.0/docs/resources/kinesis_stream
 resource "aws_kinesis_stream" "mod" {
@@ -161,6 +171,7 @@ resource "aws_kinesis_firehose_delivery_stream" "mod" {
   }
 }
 
+# firehose에 적용할 IAM role 생성
 resource "aws_iam_role" "firehose_role" {
   name  = "${var.stream_name}-firehose-role"
 
@@ -177,6 +188,27 @@ resource "aws_iam_role" "firehose_role" {
       "Sid": ""
     }
   ]
+}
+EOF
+}
+
+# 위에서 생성한 IAM role에 적용할 정책(Policy) 적용
+resource "aws_iam_role_policy" "firehose_policy" {
+  name  = "${var.stream_name}-firehose-policy"
+  role  = "${aws_iam_role.firehose_role.id}"
+
+  policy = <<EOF
+{
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*",
+                "s3-object-lambda:*"
+            ],
+            "Resource": "*"
+        }
+    ]
 }
 EOF
 }
