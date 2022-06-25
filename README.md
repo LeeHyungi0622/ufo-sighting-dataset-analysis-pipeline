@@ -74,9 +74,12 @@ PySpark, SparkSQL을 활용하여 Raw 데이터를 정제하였습니다.
 
 본 프로젝트의 데이터 파이프라인 구축 및 데이터 수집/적재/분석을 위해서 아래의 순서에 따라 실행해주세요.
 
-1. 준비한 AWS 계정에서 access key와 secret key를 생성하고, 해당 정보를 terraform 폴더 하위의 aws-infrastructure.tf 파일의 [] ~ [] 줄 사이에 넣어주세요.
+1. 준비한 AWS 계정에서 access key와 secret key를 생성하고, 해당 정보를 terraform 폴더 하위의 terraform.tf 파일의 `aws_access_key`, `aws_secret_key`의 default 속성의 값으로 넣어주세요. (aws_region은 seoul region의 경우, "ap-northeast-2"로, 그 외의 지역은 선택적으로 넣어주세요)
+
 2. Run command: `python x`
+
 3. Make sure it's running properly by checking z
+
 4. To clean up at the end, run script: `python cleanup.py`
 
 ## Lessons Learned

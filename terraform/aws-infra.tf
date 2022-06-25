@@ -11,9 +11,9 @@ terraform {
 # Configure the AWS Provider
 # Seoul - ap-northeast-2
 provider "aws" {
-  region = "ap-northeast-2"
-  access_key = "[access_key]"
-  secret_key = "[secret_key]"
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+  region = "${var.aws_region}"
 }
 
 # VPC 생성
