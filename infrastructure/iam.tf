@@ -81,14 +81,60 @@ role  = "${aws_iam_role.firehose_iam_role.id}"
 
 policy = <<EOF
 {
-    "Statement": [
+    "Version": "2012-10-17",  
+    "Statement":
+    [    
+        {      
+            "Effect": "Allow",      
+            "Action": [
+                "s3:AbortMultipartUpload",
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:PutObject"
+            ],      
+            "Resource": [        
+                "arn:aws:s3:::bucket-name",
+                "arn:aws:s3:::bucket-name/*"            
+            ]    
+        },        
         {
             "Effect": "Allow",
             "Action": [
-                "s3:*",
-                "s3-object-lambda:*"
+                "kinesis:DescribeStream",
+                "kinesis:GetShardIterator",
+                "kinesis:GetRecords",
+                "kinesis:ListShards"
             ],
-            "Resource": "*"
+            "Resource": "arn:aws:kinesis:region:account-id:stream/stream-name"
+        },
+        {
+           "Effect": "Allow",
+           "Action": [
+               "kms:Decrypt",
+               "kms:GenerateDataKey"
+           ],
+           "Resource": [
+               "arn:aws:kms:region:account-id:key/key-id"           
+           ],
+           "Condition": {
+               "StringEquals": {
+                   "kms:ViaService": "s3.region.amazonaws.com"
+               },
+               "StringLike": {
+                   "kms:EncryptionContext:aws:s3:arn": "arn:aws:s3:::bucket-name/prefix*"
+               }
+           }
+        },
+        {
+           "Effect": "Allow",
+           "Action": [
+               "logs:PutLogEvents"
+           ],
+           "Resource": [
+               "arn:aws:logs:region:account-id:log-group:log-group-name:log-stream:log-stream-name"
+           ]
         }
     ]
 }

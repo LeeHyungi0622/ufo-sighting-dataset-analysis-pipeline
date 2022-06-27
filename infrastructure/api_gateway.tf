@@ -53,6 +53,9 @@ resource "aws_api_gateway_method_response" "kinesis_api_ok" {
   resource_id = aws_api_gateway_resource.kinesis_api_resource_check.id
   http_method = aws_api_gateway_method.kinesis_api_post.http_method
   status_code = "200"
+  response_models = {
+    "application/json" = "Empty"
+  }
 }
 
 resource "aws_api_gateway_integration_response" "kinesis_api" {
@@ -67,10 +70,10 @@ resource "aws_api_gateway_integration_response" "kinesis_api" {
 
   # Passthrough the JSON response
   response_templates = {
-    "application/json" = <<EOF
-EOF
+    "application/json" = ""
 }
 }
+
 
 resource "aws_api_gateway_deployment" "kinesis_api_prod" {
   rest_api_id = aws_api_gateway_rest_api.kinesis_api.id
@@ -93,4 +96,10 @@ resource "aws_api_gateway_deployment" "kinesis_api_prod" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_api_gateway_stage" "prod" {
+  deployment_id = aws_api_gateway_deployment.kinesis_api_prod.id
+  rest_api_id   = aws_api_gateway_rest_api.kinesis_api.id
+  stage_name    = "prod"
 }
