@@ -1,7 +1,89 @@
+# api key setting
 resource "aws_api_gateway_rest_api" "kinesis_api" {
     name        = "KinesisAPI"
     description = "외부로부터 전송되는 데이터를 Kinesis stream으로 전달해주는 API"
 }
+
+resource "aws_api_gateway_api_key" "kinesis_api" {
+  name = "${var.stream_name}-api-key"
+}
+
+resource "aws_api_gateway_usage_plan" "myusageplan" {
+  name         = "my-usage-plan"
+  description  = "my description"
+  product_code = "MYCODE"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.kinesis_api.id
+    stage  = aws_api_gateway_stage.production.stage_name
+  }
+
+  quota_settings {
+    limit  = 20
+    offset = 2
+    period = "WEEK"
+  }
+
+  throttle_settings {
+    burst_limit = 5
+    rate_limit  = 10
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "main" {
+  key_id        = aws_api_gateway_api_key.kinesis_api.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.myusageplan.id
+}
+
+resource "aws_api_gateway_deployment" "kinesis_api_prod" {
+  rest_api_id = aws_api_gateway_rest_api.kinesis_api.id
+
+  triggers = {
+    # NOTE: The configuration below will satisfy ordering considerations,
+    #       but not pick up all future REST API changes. More advanced patterns
+    #       are possible, such as using the filesha1() function against the
+    #       Terraform configuration file(s) or removing the .id references to
+    #       calculate a hash against whole resources. Be aware that using whole
+    #       resources will show a difference after the initial implementation.
+    #       It will stabilize to only change when resources change afterwards.
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.kinesis_api_resource_check.id,
+      aws_api_gateway_method.kinesis_api_post.id,
+      aws_api_gateway_integration.kinesis_api_post.id,
+    ]))
+  }
+}
+# resource "aws_api_gateway_deployment" "kinesis_api_prod" {
+#   rest_api_id = aws_api_gateway_rest_api.kinesis_api.id
+
+#   triggers = {
+#     # NOTE: The configuration below will satisfy ordering considerations,
+#     #       but not pick up all future REST API changes. More advanced patterns
+#     #       are possible, such as using the filesha1() function against the
+#     #       Terraform configuration file(s) or removing the .id references to
+#     #       calculate a hash against whole resources. Be aware that using whole
+#     #       resources will show a difference after the initial implementation.
+#     #       It will stabilize to only change when resources change afterwards.
+#     redeployment = sha1(jsonencode([
+#       aws_api_gateway_resource.kinesis_api_resource_check.id,
+#       aws_api_gateway_method.kinesis_api_post.id,
+#       aws_api_gateway_integration.kinesis_api_post.id,
+#     ]))
+#   }
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
+
+
+resource "aws_api_gateway_stage" "production" {
+  deployment_id = aws_api_gateway_deployment.kinesis_api_prod.id
+  rest_api_id   = aws_api_gateway_rest_api.kinesis_api.id
+  stage_name    = "production"
+}
+
 
 # AWS API GATEWAY path 설정 
 resource "aws_api_gateway_resource" "kinesis_api_resource_check" {
@@ -65,7 +147,9 @@ resource "aws_api_gateway_integration_response" "kinesis_api" {
   status_code = aws_api_gateway_method_response.kinesis_api_ok.status_code
 
   depends_on = [
-    aws_api_gateway_integration.kinesis_api_post
+    aws_api_gateway_integration.kinesis_api_post,
+    aws_api_gateway_integration.list_streams,
+    aws_api_gateway_integration.describe_stream
   ]
 
   # Passthrough the JSON response
@@ -75,31 +159,4 @@ resource "aws_api_gateway_integration_response" "kinesis_api" {
 }
 
 
-resource "aws_api_gateway_deployment" "kinesis_api_prod" {
-  rest_api_id = aws_api_gateway_rest_api.kinesis_api.id
 
-  triggers = {
-    # NOTE: The configuration below will satisfy ordering considerations,
-    #       but not pick up all future REST API changes. More advanced patterns
-    #       are possible, such as using the filesha1() function against the
-    #       Terraform configuration file(s) or removing the .id references to
-    #       calculate a hash against whole resources. Be aware that using whole
-    #       resources will show a difference after the initial implementation.
-    #       It will stabilize to only change when resources change afterwards.
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.kinesis_api_resource_check.id,
-      aws_api_gateway_method.kinesis_api_post.id,
-      aws_api_gateway_integration.kinesis_api_post.id,
-    ]))
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_api_gateway_stage" "prod" {
-  deployment_id = aws_api_gateway_deployment.kinesis_api_prod.id
-  rest_api_id   = aws_api_gateway_rest_api.kinesis_api.id
-  stage_name    = "prod"
-}

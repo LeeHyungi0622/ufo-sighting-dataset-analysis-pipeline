@@ -29,13 +29,13 @@ def sendPost(json, url):
 
 rowCount = 1
 
-aws_api_gateway_url = 'https://wkc8u9wmyf.execute-api.ap-northeast-2.amazonaws.com/prod/v1'
+aws_api_gateway_url = 'https://cbl9baomba.execute-api.ap-northeast-2.amazonaws.com/production/v1'
 csv_object = make_object_from_csv()
 print(csv_object)
 for obj in csv_object:
     json_data = json.dumps(obj)
     print(f"{rowCount}번째 데이터 수신 결과", sendPost(json_data, aws_api_gateway_url))
-    if rowCount >= 5:
+    if rowCount >= 1000:
         break
     rowCount += 1
 
