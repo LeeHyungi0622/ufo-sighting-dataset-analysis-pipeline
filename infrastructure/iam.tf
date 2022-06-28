@@ -182,6 +182,11 @@ policy = <<EOF
                     "kms:EncryptionContext:aws:kinesis:arn": "arn:aws:kinesis:ap-northeast-2:833496479373:stream/project-stream"
                 }
             }
+        },
+        {
+        "Effect": "Allow",
+        "Action": "firehose:*",
+        "Resource" : "*"
         }
     ]
 }
