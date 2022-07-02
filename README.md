@@ -111,8 +111,16 @@ PySpark, SparkSQL을 활용하여 Raw 데이터를 정제하였습니다.
 
 ## Lessons Learned
 
-It's good to reflect on what you learned throughout the process of building this project. Here you might discuss what you would have done differently if you had more time/money/data. Did you end up choosing the right tools or would you try something else next time?
+이번 프로젝트를 통해서 AWS의 상용 서비스들의 활용에 대해서 좀 더 익숙해지는 계기가 되었고, 더 나아가 각 상용서비스가 기반으로 하고 있는 오픈 소스 프로젝트들에 대해서 더 찾아봄으로써 공부가 많이 되었습니다. 
+
+실제로 기업에서 많은 데이터를 핸들링하는 경우에는 상용서비스를 이용하기 보다는 자체 서버를 구축하여 운영하는 경우가 많기 때문에 관리/운영적 측면에서 각 오픈소스 프로젝트들이 내부적으로 어떻게 동작을 하는지, 최적화를 시킬 수 있는 방법에 대해서 좀 더 학습을 해보았습니다. 
+
+이번 데이터 파이프라인에서 사용한 Kinesis data stream의 경우에는 오픈소스 프로젝트인 Kafka와 같은 기능을 하는 AWS의 완전 관리형 서비스로, 한 번 shard 수를 늘리게 되면 줄일 수 없는 Kafka와 달리, Kinesis data stream에서는 shard 수를 유연하게 늘리고 줄일 수 있습니다. 좀 더 Partition, Replica의 수와 같은 값 설정을 통해 커스텀한 Kafka 서비스를 사용하고자 할때에는 Kafka를 자체 서버에서의 구축을 통해 사용하는 것이 좋다는 것 또한 배웠습니다. 
+
+프로젝트를 진행하면서 DW와 DM의 구분 경계가 애매한 부분이 있어서 이 부분을 다른 프로젝트를 통해서 다른 파이프라인 구조로 개선을 해볼 예정입니다. 예를들면, 현재 Kinesis data stream의 데이터가 Kinesis data firehose를 통해서 S3에 적제가 되는데, Python 스크립트상에서 이미 JSON 포멧으로 데이터를 바로 말아주면서 던져주고 있기 때문에 별도의 DW의 가공을 통한 S3 적제 없이 Kinesis data stream으로부터 받은 데이터를 바로 Flink로 던져서 Flink와 연결된 ES(ElasticSearch)에서 시각화를 통한 데이터 분석을 하는 방식으로 수정을 해 볼 것입니다.
+
+<br/>
 
 ## Contact
 
-Please feel free to contact me if you have any questions at: LinkedIn, Twitter
+Email : tireless.hyungi.lee@gmail.com
