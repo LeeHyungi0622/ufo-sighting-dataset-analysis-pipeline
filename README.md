@@ -2,7 +2,26 @@
 
 ## **Overview**
 
-이번 프로젝트에서는 Kappa Architecture를 구성하여 UFO 관측 데이터셋을 S3에 저장을 하여 DL(Data Lake)를 구축하고, 적제된 Raw 데이터를 Amazon EMR에서 Zepplin을 통해 Spark SQL을 활용하여 데이터를 정제하여 DW, DM 레벨의 데이터를 만들고, S3에 적제하여 활용도 있는 데이터를 만들어내는 것이 목표입니다.
+이번 프로젝트에서는 데이터 파이프라인을 Kappa Architecture로 구성합니다. UFO 관측 데이터셋을 S3에 저장하여 DL(Data Lake)를 구축하고, 적제된 Raw 데이터를 Amazon EMR에서 Zepplin을 통해 Spark SQL을 활용하여 데이터를 정제합니다. (`DW, DM 레벨의 데이터를 생성 후 S3에 적제`) 그리고 S3에 저장된 데이터는 `Amazon QuickSight를 활용하여 분석 및 시각화`를 하게 됩니다.
+
+<br/>
+
+## **Dataset**
+
+프로젝트에서 사용할 데이터는 Kaggle에서 제공하는 UFO Sighting CSV 포멧의 데이터셋을 활용했습니다. 해당 데이터셋을 선택한 이유는 최근 뉴스에서 미국 의회가 UFO에 대한 공개 청문회를 50년만에 개최하였고, UFO의 존재에 대해 인정을 하였기 때문에 흥미로운 데이터셋이 없을까 고민하던 중 선택하게 되었습니다.
+
+**ref. Kaggle (UFO Sighting)** : [https://www.kaggle.com/datasets/NUFORC/ufo-sightings](https://www.kaggle.com/datasets/NUFORC/ufo-sightings)
+
+<br/>
+
+## **Objective**
+
+이번 프로젝트를 통해 주어진 데이터셋을 분석하여 아래의 내용들과의 상관관계에 대해서 알아볼 것입니다.
+
+- 국내에서 UFO가 발견된 시기와 장소에 대한 정보
+- UFO 목격 가능성이 가장 높은 지역
+- UFO가 특정 계절에 많이 목격되는지
+- 가장 일반적으로 묘사되는 UFO에 대한 설명
 
 <br/>
 
@@ -13,9 +32,11 @@
 
 이 데이터 아키텍처를 선택한 이유는 현대에 와서는 컴퓨터 리소스와 컴퓨팅 기술, 스트림처리 엔진에 대한 기술의 발달로 배치와 스트림 처리를 모두 실시간 스트림으로 처리하는 것이 가능해졌기 때문에 `Kappa Architecture`를 선택하였습니다.
 
-분석하고자 하는 UFO 관측 데이터셋(CSV)을 파이썬 스크립트를 통해 객체 리스트로 변환을 한 후에 만들어진 객체 리스트를 순회하면서 `API Gateway` End Point로 객체 하나씩 전송하도록 처리를 하였습니다. API Gateway End Point로 전송된 데이터는 `Kinesis Data streams`으로 전송이 되고, 최종적으로 `Kinesis Data Firehose`를 통해 `S3`에 Raw 데이터로써 적재가 되고, 이로써 DL(Data Lake)를 구성을 하였습니다. (`80332개의 데이터가 전송되도록 구성`)
+과거와 달리 스트림처리 엔진이 at-most-once가 아닌, `exactly-once까지 지원`을 하면서 전달되는 데이터를 보장하고, 메시지의 유실 가능성 및 중복 가능성도 없어지면서 스트림 처리를 통한 신뢰도가 높아졌습니다.
 
-적재된 Raw 데이터는 Amazon EMR에서 Zepplin을 통해 Spark Interpreter를 사용하여 PySpark를 활용하여 데이터를 정제하고, 최종적으로 DW(Silver)와 DM(Gold) 데이터로써 S3에 적재를 하였습니다. 그리고 Zepplin에서 데이터를 그래프로 시각화하는 기능을 제공하기 때문에 이를 활용하여 데이터들간의 관계를 시각적으로 확인할 수 있었습니다. 
+분석하고자 하는 UFO 관측 데이터셋(CSV)을 파이썬 스크립트를 통해 객체 리스트로 변환을 한 후에 만들어진 객체 리스트를 순회하면서 `API Gateway` End Point로 JSON 포멧의 데이터로써 객체 하나씩 전송하도록 처리를 하였습니다. API Gateway End Point로 전송된 데이터는 `Kinesis Data streams`으로 전송이 되고, 최종적으로 `Kinesis Data Firehose`를 통해 `S3`에 Raw 데이터로써 적재를 하고, 이로써 DL(Data Lake)를 구성하도록 하였습니다. (`80332개의 데이터`)
+
+적재된 Raw 데이터는 Amazon EMR에서 Zepplin을 통해 Spark Interpreter를 사용하여 PySpark를 활용하여 데이터를 정제하고, 최종적으로 DW(Silver)와 DM(Gold) 데이터로써 S3에 적재를 하였습니다. 그리고 S3에 적제된 데이터는 Amazon QuickSight를 활용하여 데이터들간의 관계를 시각적으로 확인할 수 있도록 하였습니다.
 
 <br/>
 
