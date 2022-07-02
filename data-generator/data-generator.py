@@ -29,14 +29,13 @@ def sendPost(json, url):
 
 rowCount = 1
 
-aws_api_gateway_url = 'https://cbl9baomba.execute-api.ap-northeast-2.amazonaws.com/production/v1'
+aws_api_gateway_url = '[API Gateway End Point]'
 csv_object = make_object_from_csv()
-print(csv_object)
+
 for obj in csv_object:
     json_data = json.dumps(obj)
     print(f"{rowCount}번째 데이터 수신 결과", sendPost(json_data, aws_api_gateway_url))
-    if rowCount >= 1000:
-        break
+
     rowCount += 1
 
 print("총 데이터 건 수 {0} 중에 {1}건의 데이터 발송완료".format(len(csv_object), rowCount))
