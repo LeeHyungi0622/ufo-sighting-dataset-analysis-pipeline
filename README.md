@@ -41,13 +41,13 @@
 - ### **Better Architecture**
 
     이번 프로젝트에서 HDFS를 S3로 대체해서 사용한 이유는 Data node(S3)와 Computing node(EMR)을 서로 분리하여 독립적인 객체로써 운영함으로써 좋은 Data pipeline Architecture를 구성할 수 있을 것이라고 생각했기 때문입니다.
-    지금은 작은 규모의 사이드 프로젝트이지만, 향후에 복수 작업자 간에 Storage의 데이터를 Spark를 활용해서 동시 접근 및 처리하는 형태로 업무를 해야되는 경우가 생길 수 있기 때문에 Data node와 Computing node를 분리함으로써 각 각의 작업자들 간의 종속성을 분리를 통해 좀 더 나은 Data Pipeline Architecture를 만들 수 있지 않을까 생각되어 구성해보았습니다. 
+    지금은 작은 규모의 사이드 프로젝트이지만, 향후에 복수 작업자 간에 Storage의 데이터를 Spark를 활용해서 동시 접근 및 처리하는 형태로 업무를 해야되는 경우가 생길 수 있기 때문에 Data node와 Computing node를 분리함으로써 각 각의 작업자들 간의 종속성 분리를 통해 좀 더 나은 Data Pipeline Architecture를 만들 수 있지 않을까 생각되어 구성해보았습니다. 
 
 <br/>
 
 ## **Data Transformation & Visualization**
 
-PySpark, SparkSQL을 활용하여 Raw 데이터를 정제하였습니다.
+PySpark, SparkSQL을 활용하여 Raw 데이터를 정제한 후에 Amazon QuickSight를 통해 DM의 데이터를 시각화하여 처리해보았습니다. Amazon QuickSight는 Amazon에서 제공되는 Cloud native serverless BI 툴로써, AWS 계정 없이 데이터를 기반으로 시각화한 Dashboard를 생성하고 공유할 수 있습니다. 이러한 장점으로 향후에 업무에서 AWS S3에 적제된 데이터를 시각화하여 처리할때 유용하게 사용될 것 같아 Amazon QuickSight를 선택하였습니다. 
 
 <table>
     <tr>
