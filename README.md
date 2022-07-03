@@ -2,7 +2,7 @@
 
 ## **Overview**
 
-이번 프로젝트에서는 데이터 파이프라인을 Kappa Architecture로 구성합니다. UFO 관측 데이터셋을 S3에 저장하여 DL(Data Lake)를 구축하고, 적제된 Raw 데이터를 Amazon EMR에서 Zepplin을 통해 Spark SQL을 활용하여 데이터를 정제합니다. (`DW, DM 레벨의 데이터를 생성 후 S3에 적제`) 그리고 S3에 저장된 데이터는 `Amazon QuickSight를 활용하여 분석 및 시각화`를 하게 됩니다.
+이번 프로젝트에서는 데이터 파이프라인을 Kappa Architecture로 구성합니다. UFO 관측 데이터셋을 S3에 저장하여 DL(Data Lake)를 구축하고, 적재된 Raw 데이터를 Amazon EMR에서 Zepplin을 통해 Spark SQL을 활용하여 데이터를 정제합니다. (`DW, DM 레벨의 데이터를 생성 후 S3에 적재`) 그리고 S3에 저장된 데이터는 `Amazon QuickSight를 활용하여 분석 및 시각화`를 하게 됩니다.
 
 <br/>
 
@@ -36,7 +36,7 @@
 
 분석하고자 하는 UFO 관측 데이터셋(CSV)을 파이썬 스크립트를 통해 객체 리스트로 변환을 한 후에 만들어진 객체 리스트를 순회하면서 `API Gateway` End Point로 JSON 포멧의 데이터로써 객체 하나씩 전송하도록 처리를 하였습니다. API Gateway End Point로 전송된 데이터는 `Kinesis Data streams`으로 전송이 되고, 최종적으로 `Kinesis Data Firehose`를 통해 `S3`에 Raw 데이터로써 적재를 하고, 이로써 DL(Data Lake)를 구성하도록 하였습니다. (`80332개의 데이터`)
 
-적재된 Raw 데이터는 Amazon EMR에서 Zepplin을 통해 Spark Interpreter를 사용하여 PySpark를 활용하여 데이터를 정제하고, 최종적으로 DW(Silver)와 DM(Gold) 데이터로써 S3에 적재를 하였습니다. 그리고 S3에 적제된 데이터는 Amazon QuickSight를 활용하여 데이터들간의 관계를 시각적으로 확인할 수 있도록 하였습니다.
+적재된 Raw 데이터는 Amazon EMR에서 Zepplin을 통해 Spark Interpreter를 사용하여 PySpark를 활용하여 데이터를 정제하고, 최종적으로 DW(Silver)와 DM(Gold) 데이터로써 S3에 적재를 하였습니다. 그리고 S3에 적재된 데이터는 Amazon QuickSight를 활용하여 데이터들간의 관계를 시각적으로 확인할 수 있도록 하였습니다.
 
 - ### **Better Architecture**
 
@@ -47,7 +47,7 @@
 
 ## **Data Transformation & Visualization**
 
-PySpark, SparkSQL을 활용하여 Raw 데이터를 정제한 후에 Amazon QuickSight를 통해 DM의 데이터를 시각화하여 처리해보았습니다. Amazon QuickSight는 Amazon에서 제공되는 Cloud native serverless BI 툴로써, AWS 계정 없이 데이터를 기반으로 시각화한 Dashboard를 생성하고 공유할 수 있습니다. 이러한 장점으로 향후에 업무에서 AWS S3에 적제된 데이터를 시각화하여 처리할때 유용하게 사용될 것 같아 Amazon QuickSight를 선택하였습니다. 
+PySpark, SparkSQL을 활용하여 Raw 데이터를 정제한 후에 Amazon QuickSight를 통해 DM의 데이터를 시각화하여 처리해보았습니다. Amazon QuickSight는 Amazon에서 제공되는 Cloud native serverless BI 툴로써, AWS 계정 없이 데이터를 기반으로 시각화한 Dashboard를 생성하고 공유할 수 있습니다. 이러한 장점으로 향후에 업무에서 AWS S3에 적재된 데이터를 시각화하여 처리할때 유용하게 사용될 것 같아 Amazon QuickSight를 선택하였습니다. 
 
 <table>
     <tr>
@@ -122,7 +122,7 @@ PySpark, SparkSQL을 활용하여 Raw 데이터를 정제한 후에 Amazon Quick
 
 이번 데이터 파이프라인에서 사용한 Kinesis data stream의 경우에는 오픈소스 프로젝트인 Kafka와 같은 기능을 하는 AWS의 완전 관리형 서비스로, 한 번 shard 수를 늘리게 되면 줄일 수 없는 Kafka와 달리, Kinesis data stream에서는 shard 수를 유연하게 늘리고 줄일 수 있습니다. 좀 더 Partition, Replica의 수와 같은 값 설정을 통해 커스텀한 Kafka 서비스를 사용하고자 할때에는 Kafka를 자체 서버에서의 구축을 통해 사용하는 것이 좋다는 것 또한 배웠습니다. 
 
-프로젝트를 진행하면서 DW와 DM의 구분 경계가 애매한 부분이 있어서 이 부분을 다른 프로젝트를 통해서 다른 파이프라인 구조로 개선을 해볼 예정입니다. 예를들면, 현재 Kinesis data stream의 데이터가 Kinesis data firehose를 통해서 S3에 적제가 되는데, Python 스크립트상에서 이미 JSON 포멧으로 데이터를 바로 말아주면서 던져주고 있기 때문에 별도의 DW의 가공을 통한 S3 적제 없이 Kinesis data stream으로부터 받은 데이터를 바로 Flink로 던져서 Flink와 연결된 ES(ElasticSearch)에서 시각화를 통한 데이터 분석을 하는 방식으로 수정을 해 볼 것입니다.
+프로젝트를 진행하면서 DW와 DM의 구분 경계가 애매한 부분이 있어서 이 부분을 다른 프로젝트를 통해서 다른 파이프라인 구조로 개선을 해볼 예정입니다. 예를들면, 현재 Kinesis data stream의 데이터가 Kinesis data firehose를 통해서 S3에 적재가 되는데, Python 스크립트상에서 이미 JSON 포멧으로 데이터를 바로 말아주면서 던져주고 있기 때문에 별도의 DW의 가공을 통한 S3 적재 없이 Kinesis data stream으로부터 받은 데이터를 바로 Flink로 던져서 Flink와 연결된 ES(ElasticSearch)에서 시각화를 통한 데이터 분석을 하는 방식으로 수정을 해 볼 것입니다.
 
 <br/>
 
