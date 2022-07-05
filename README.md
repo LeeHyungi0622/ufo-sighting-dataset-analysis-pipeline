@@ -20,7 +20,7 @@
 
 - 국내에서 UFO가 발견된 시기와 장소에 대한 정보
 - UFO 목격 가능성이 가장 높은 지역
-- UFO가 특정 계절에 많이 목격되는지
+- UFO가 특정 달에 많이 목격되는지
 - 가장 일반적으로 묘사되는 UFO에 대한 모양
 
 <br/>
@@ -47,7 +47,7 @@
 
 ## **Data Transformation & Visualization**
 
-PySpark, SparkSQL을 활용하여 Raw 데이터를 정제한 후에 Amazon QuickSight를 통해 DM의 데이터를 시각화하여 처리해보았습니다. Amazon QuickSight는 Amazon에서 제공되는 Cloud native serverless BI 툴로써, AWS 계정 없이 데이터를 기반으로 시각화한 Dashboard를 생성하고 공유할 수 있습니다. 이러한 장점으로 향후에 업무에서 AWS S3에 적재된 데이터를 시각화하여 처리할때 유용하게 사용될 것 같아 Amazon QuickSight를 선택하였습니다. 
+PySpark, SparkSQL을 활용하여 Raw 데이터를 정제한 후에 정재된 데이터를 DM로써 개별 폴더로 분류하여 Amazon QuickSight를 통해 시각화하여 처리해보았습니다. Amazon QuickSight는 Amazon에서 제공되는 Cloud native serverless BI 툴로써, AWS 계정 없이 데이터를 기반으로 시각화한 Dashboard를 생성하고 공유할 수 있습니다. 이러한 장점으로 향후에 업무에서 AWS S3에 적재된 데이터를 시각화하여 처리할때 유용하게 사용될 것 같아 Amazon QuickSight를 사용하여 시각화를 해보았습니다. 
 
 <table>
     <tr>
@@ -58,30 +58,67 @@ PySpark, SparkSQL을 활용하여 Raw 데이터를 정제한 후에 Amazon Quick
     <tr>
         <td>1</td>
         <td>
-            <img src="assets/220609_max_duration_seconds_country.png" alt="" />
+            <img src="assets/220705_ufo_sighting_count_quicksight.png" alt="국내에서 UFO가 발견된 시기와 장소에 대한 정보" />
         </td>
-        <td>각 국가코드를 기준으로 그룹화하고, 각 국가별 UFO 최대 관측시간을 구해서 최대 관측시간을 기준으로 내림차순으로 정렬</td>
+        <td>
+            <b>[국내에서 UFO가 발견된 시기와 장소에 대한 정보]</b><br/>
+            <small>국내에서는 서울 3건, 부산 2건, 그 외 지역에서 8건, 총 13건 UFO가 관측되었다.</small>     
+        </td>
     </tr>
     <tr>
-        <td>2</td>
+        <td>1-1</td>
         <td>
-            <img src="assets/220609_count_desc_in_country.png" alt="" />
+            <img src="assets/220705_ufo_sighting_geo_location.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
         </td>
-        <td>각 국가별 UFO 관측 횟수를 기준으로 내림차순으로 정렬하고, Zepplin에서 막대 그래프로 시각화 처리</td>
+        <td>
+        <b>[국내 UFO 관측 위치를 경도(Longitude), 위도(Latitude)로 지도에 표시]</b>
+        <br/>
+        <small>국내에서는 지도에 표기된 위치에서 UFO가 관측되었다. republic of south korea로 도시명이 명기된 지역의 경우, 경도와 위도를 확인한 결과, 전주 지역에서 관측된 것으로 확인되었다.</small>
+        </td>
+    </tr>
+    <tr>
+        <td>1-2</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_shape.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
+        </td>
+        <td>
+            <b>[국내에서 관측된 UFO의 모양]</b>
+            <br/>
+            <small>국내에서 관측된 UFO의 모양은 disk 형태가 3회로 가장 많았으며, light 형태와 cone 형태가 2회로, 그 다음으로 많이 관측되었다. 가장 많이 관측된 서울 지역에서는 관측된 3회 전부 다 다른 모양으로 관측이 되었고, 부산도 관측된 2회 모두 다른 형태로 관측되었음을 확인할 수 있었다.</small>
+        </td>
+    </tr>
+    <tr>
+        <td>1-1</td>
+        <td>
+            <img src="assets/220705_ufo_sighting_worldwide_region.png" alt="국내 UFO 관측 위치 (Latitude, Longitude로 지도에 표시)" />
+        </td>
+        <td>
+        <b>[UFO 목격 가능성이 가장 높은 지역]</b>
+            <br/>
+            <small>전체 UFO 관측 데이터를 기준으로 UFO가 가장 많이 목격된 지역은 미국(us) 12,780건 관측되었으며, 그 다음은 캐나다(ca)로, 645건이 관측되었다. </small>
+        </td>
     </tr>
     <tr>
         <td>3</td>
         <td>
-            <img src="assets/220609_total_sighting_time.png" alt="" />
+            <img src="assets/220705_ufo_sighting_worldwide_season.png" alt="UFO가 가장 많이 발견된 월 정보" />
         </td>
-        <td>국가별 UFO 관측시간의 총합을 구하고, 모든 국가의 UFO 관측시간 총합을 출력</td>
+        <td>
+            <b>[UFO가 특정 달에 많이 목격되는지에 대한 분석]</b>
+            <br/>
+            <small>UFO가 가장 많이 목격된 달은 7월 4872건, 8월 4632건, 6월 4432건 순으로 많았다. 우리나라를 기준으로 계절이 여름인 달에 UFO가 많이 관측됨을 확인할 수 있었다.</small>
+        </td>
     </tr>
     <tr>
         <td>4</td>
         <td>
-            <img src="assets/220609_total_sighting_time_rank.png" alt="" />
+            <img src="assets/220705_ufo_sighting_description.png" alt="" />
         </td>
-        <td>국가별 관측시간의 총합을 기준으로 순위를 출력(별도의 칼럼으로 순위정보 출력)</td>
+        <td>
+            <b>[가장 일반적으로 묘사되는 UFO의 모양에 대한 분석]</b>
+            <br/>
+            <small>관측된 UFO의 모양은 빛(광선)의 형태(21%)로, 가장 많이 관측되었다. 그 다음으로는 삼각형 형태(10%)로 관측되었으며, 원형 형태(10%)로의 관측이 그 다음으로 많이 관측되었다.</small>
+        </td>
     </tr>
 </table>
 
